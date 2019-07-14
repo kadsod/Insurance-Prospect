@@ -1,4 +1,4 @@
-package model;
+package com.prospect.model;
 
 public class Form {
 
@@ -8,7 +8,7 @@ public class Form {
     private String emailId;
     private String zip;
     private String enquiryMessage;
-    
+    private String gender;
 	public String getFirstName() {
 		return firstName;
 	}
@@ -45,6 +45,12 @@ public class Form {
 	public void setEnquiryMessage(String enquiryMessage) {
 		this.enquiryMessage = enquiryMessage;
 	}
+	public String getGender() {
+		return gender;
+	}
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -52,6 +58,7 @@ public class Form {
 		result = prime * result + ((emailId == null) ? 0 : emailId.hashCode());
 		result = prime * result + ((enquiryMessage == null) ? 0 : enquiryMessage.hashCode());
 		result = prime * result + ((firstName == null) ? 0 : firstName.hashCode());
+		result = prime * result + ((gender == null) ? 0 : gender.hashCode());
 		result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
 		result = prime * result + ((mobileNumber == null) ? 0 : mobileNumber.hashCode());
 		result = prime * result + ((zip == null) ? 0 : zip.hashCode());
@@ -81,6 +88,11 @@ public class Form {
 				return false;
 		} else if (!firstName.equals(other.firstName))
 			return false;
+		if (gender == null) {
+			if (other.gender != null)
+				return false;
+		} else if (!gender.equals(other.gender))
+			return false;
 		if (lastName == null) {
 			if (other.lastName != null)
 				return false;
@@ -101,8 +113,11 @@ public class Form {
 	@Override
 	public String toString() {
 		return "Form [firstName=" + firstName + ", lastName=" + lastName + ", mobileNumber=" + mobileNumber
-				+ ", emailId=" + emailId + ", zip=" + zip + ", enquiryMessage=" + enquiryMessage + "]";
+				+ ", emailId=" + emailId + ", zip=" + zip + ", enquiryMessage=" + enquiryMessage + ", gender=" + gender
+				+ "]";
 	}
+    
+	
 	
     
 	
