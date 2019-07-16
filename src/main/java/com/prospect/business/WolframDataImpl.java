@@ -5,6 +5,7 @@ import java.util.Scanner;
 
 import org.springframework.stereotype.Service;
 
+import com.prospect.model.Form;
 import com.prospect.model.WolframMapping;
 import com.prospect.util.Constants;
 import com.wolfram.alpha.WAEngine;
@@ -21,7 +22,7 @@ public class WolframDataImpl implements WolframData {
 	public static final String apikey = "Q475QA-TPWG84Q6KJ";
 
 	@Override
-	public String saveData(String actualZipVal) {
+	public String formulateData(Form formObjct) {
 		WAEngine engine = new WAEngine();
 		WolframMapping mappingObj = new WolframMapping();
 		// These properties will be set in all the WAQuery objects created from this
@@ -33,7 +34,7 @@ public class WolframDataImpl implements WolframData {
 		WAQuery query = engine.createQuery();
 
 		// Set properties of the query.
-		query.setInput("zip" + " " + actualZipVal);
+		query.setInput("zip" + " " + formObjct.getZip());
 
 		try {
 			// For educational purposes, print out the URL we are about to send:
@@ -71,6 +72,7 @@ public class WolframDataImpl implements WolframData {
 					}
 				}
 				System.out.println(mappingObj.toString());
+				
 				// We ignored many other types of Wolfram|Alpha output, such as warnings,
 				// assumptions, etc.
 				// These can be obtained by methods of WAQueryResult or objects deeper in the
@@ -93,9 +95,26 @@ public class WolframDataImpl implements WolframData {
 		
 		if (title.equals(Constants.EDUCATIONAL_ATTAIN)) {
 			String str = ((WAPlainText) data).getText();
-			String result = str.substring(str.indexOf("|") + 1, str.indexOf("%"));
-			System.out.println(result);
-			mappingObj.setDegrePercentage(Double.parseDouble(result));
+			ArrayList<String> educationLevels = new ArrayList<String>() ;
+			Scanner scanner = new Scanner(str);
+			while(scanner.hasNextLine()) {
+				educationLevels.add(scanner.nextLine());
+			}
+			int count = 0;
+			for (String educationLevel : educationLevels) {
+				String result = educationLevel.substring(educationLevel.indexOf("(") + 1, educationLevel.indexOf("×"));
+				System.out.println(result);
+				if(count == 0) {
+					mappingObj.setCollegeDegreeAvg(Double.parseDouble(result));
+				}if(count == 1) {
+					mappingObj.setHighSchoolDiplomaAvg(Double.parseDouble(result));
+				}if(count == 2) {
+					mappingObj.setLessThanHighSchoolDiplomaAvg(Double.parseDouble(result));
+				}
+				count++;
+				if(count == 3) break;
+			}
+			scanner.close();
 		}
 		
 		if (title.equals(Constants.MEDIAN_INCOME)) {
@@ -107,19 +126,37 @@ public class WolframDataImpl implements WolframData {
 			}
 			int count = 0;
 			for (String income : incomeValues) {
-				String result = income.substring(income.indexOf("|") + 1, income.indexOf("per year"));
+				String result =  income.substring(income.lastIndexOf("(") + 1, income.indexOf("×"));
 				System.out.println(result);
 				if(count == 0) {
-					mappingObj.setMedianIncome(Double.parseDouble(result.substring(result.indexOf("$")+1)));
+					mappingObj.setMedianHouseholdIncomeAvg(Double.parseDouble(result));
 				}if(count == 1) {
-					mappingObj.setPercapitaIncome(Double.parseDouble(result.substring(result.indexOf("$")+1)));
+					mappingObj.setPerCapitaIncomeAvg(Double.parseDouble(result));
+				}
+				count++;
+				if(count == 2) break;
+			}
+			scanner.close();
+			
+		}
+		if (title.equals(Constants.HOUSING)) {
+			String str = ((WAPlainText) data).getText();
+			ArrayList<String> housingData = new ArrayList<String>() ;
+			Scanner scanner = new Scanner(str);
+			while(scanner.hasNextLine()) {
+				housingData.add(scanner.nextLine());
+			}
+			int count = 0;
+			for (String housing : housingData) {
+				if(count == 1) {
+					String result = housing.substring(housing.indexOf("|") + 1, housing.lastIndexOf(" "));
+					System.out.println(result);
+					mappingObj.setPeoplePerHousehold(Double.parseDouble(result));
 				}
 				count++;
 				if(count==2) break;
 			}
 			scanner.close();
-			
 		}
-
 	}
 }

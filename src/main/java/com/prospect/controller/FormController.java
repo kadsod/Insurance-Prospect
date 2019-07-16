@@ -32,7 +32,7 @@ public class FormController {
 			e.printStackTrace();
 		}
 		System.out.println(jsonStr);
-		return data.saveData(formObj.getZip());
+		return data.formulateData(formObj);
 		
 	}
 }
