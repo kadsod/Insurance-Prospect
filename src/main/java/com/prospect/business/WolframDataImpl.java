@@ -3,10 +3,13 @@ package com.prospect.business;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.prospect.model.Form;
+import com.prospect.model.Metrics;
 import com.prospect.model.WolframMapping;
+import com.prospect.repository.MetricsRepository;
 import com.prospect.util.Constants;
 import com.wolfram.alpha.WAEngine;
 import com.wolfram.alpha.WAException;
@@ -18,6 +21,10 @@ import com.wolfram.alpha.WASubpod;
 
 @Service
 public class WolframDataImpl implements WolframData {
+	
+	@Autowired
+	MetricsRepository repo;
+
 
 	public static final String apikey = "Q475QA-TPWG84Q6KJ";
 
@@ -72,7 +79,7 @@ public class WolframDataImpl implements WolframData {
 					}
 				}
 				System.out.println(mappingObj.toString());
-				
+				saveData(mappingObj, formObjct);
 				// We ignored many other types of Wolfram|Alpha output, such as warnings,
 				// assumptions, etc.
 				// These can be obtained by methods of WAQueryResult or objects deeper in the
@@ -159,4 +166,19 @@ public class WolframDataImpl implements WolframData {
 			scanner.close();
 		}
 	}
+	
+
+	private void saveData(WolframMapping mappingObj, Form formObjct) {
+		// TODO Auto-generated method stub
+		Double finalScore = calculateScore(mappingObj);
+		Metrics metricData = new Metrics();
+		metricData.setScore(123d);
+		repo.save(metricData);
+	}
+
+	private Double calculateScore(WolframMapping mappingObj) {
+		return null;
+		
+	}
+
 }
