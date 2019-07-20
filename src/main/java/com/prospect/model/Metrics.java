@@ -15,6 +15,7 @@ public class Metrics {
 	private String zip;
 	private String enquiryMessage;
 	private String gender;
+	private String location;
 
 	private Double score;
 
@@ -89,5 +90,15 @@ public class Metrics {
 	public void setScore(Double score) {
 		this.score = score;
 	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+	
+	
 
 }

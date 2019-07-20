@@ -18,12 +18,11 @@ import com.prospect.model.Form;
 public class FormController {
 	
 	@Autowired
-	WolframData dataVal;
+	WolframData data;
 	
 
 	@PostMapping(path= "/postData", consumes = "application/json", produces = "application/json")
-	public String createData(@RequestBody Form formObj) {
-		//System.out.println(formObj.toString());
+	public Form createData(@RequestBody Form formObj) {
 		ObjectMapper Obj = new ObjectMapper(); 
 		String jsonStr ="";
 		try {
@@ -32,7 +31,8 @@ public class FormController {
 			e.printStackTrace();
 		}
 		System.out.println(jsonStr);
-		return dataVal.formulateData(formObj);
-		
+		String resp = data.formulateData(formObj);
+		formObj.setResponse(resp);
+		return formObj;
 	}
 }
