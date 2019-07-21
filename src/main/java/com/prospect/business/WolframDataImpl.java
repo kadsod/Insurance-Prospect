@@ -22,10 +22,9 @@ import com.wolfram.alpha.WASubpod;
 
 @Service
 public class WolframDataImpl implements WolframData {
-	
+
 	@Autowired
 	MetricsRepository repo;
-
 
 	public static final String apikey = "Q475QA-TPWG84Q6KJ";
 
@@ -64,23 +63,23 @@ public class WolframDataImpl implements WolframData {
 				System.out.println("Successful query. Pods follow:\n");
 				for (WAPod pod : queryResult.getPods()) {
 					if (!pod.isError()) {
-						//System.out.println(pod.getTitle());
-						//System.out.println("------------");
+						// System.out.println(pod.getTitle());
+						// System.out.println("------------");
 						for (WASubpod subpod : pod.getSubpods()) {
 							for (Object element : subpod.getContents()) {
 								if (element instanceof WAPlainText) {
-									//System.out.println(((WAPlainText) element).getText());
-									//System.out.println("");
+									// System.out.println(((WAPlainText) element).getText());
+									// System.out.println("");
 									extractions = extractData(pod.getTitle(), element, mappingObj);
 								}
 							}
 						}
-						//System.out.println("");
+						// System.out.println("");
 					}
 				}
-				if(extractions.equalsIgnoreCase("Successfull extraction!")) {
+				if (extractions.equalsIgnoreCase("Successfull extraction!")) {
 					saveData(mappingObj, formObjct);
-				}else {
+				} else {
 					return "Data extraction Error, try different zip";
 				}
 				// We ignored many other types of Wolfram|Alpha output, such as warnings,
@@ -103,69 +102,76 @@ public class WolframDataImpl implements WolframData {
 				System.out.println(result);
 				mappingObj.setLocation(result);
 			}
-			
+
 			if (title.equals(Constants.EDUCATIONAL_ATTAIN)) {
 				String str = ((WAPlainText) data).getText();
-				ArrayList<String> educationLevels = new ArrayList<String>() ;
+				ArrayList<String> educationLevels = new ArrayList<String>();
 				Scanner scanner = new Scanner(str);
-				while(scanner.hasNextLine()) {
+				while (scanner.hasNextLine()) {
 					educationLevels.add(scanner.nextLine());
 				}
 				int count = 0;
 				for (String educationLevel : educationLevels) {
-					String result = educationLevel.substring(educationLevel.indexOf("(") + 1, educationLevel.indexOf("×"));
+					String result = educationLevel.substring(educationLevel.indexOf("(") + 1,
+							educationLevel.indexOf("×"));
 					System.out.println(result);
-					if(count == 0) {
+					if (count == 0) {
 						mappingObj.setCollegeDegreeAvg(Double.parseDouble(result));
-					}if(count == 1) {
+					}
+					if (count == 1) {
 						mappingObj.setHighSchoolDiplomaAvg(Double.parseDouble(result));
-					}if(count == 2) {
+					}
+					if (count == 2) {
 						mappingObj.setLessThanHighSchoolDiplomaAvg(Double.parseDouble(result));
 					}
 					count++;
-					if(count == 3) break;
+					if (count == 3)
+						break;
 				}
 				scanner.close();
 			}
-			
+
 			if (title.equals(Constants.MEDIAN_INCOME)) {
 				String str = ((WAPlainText) data).getText();
-				ArrayList<String> incomeValues = new ArrayList<String>() ;
+				ArrayList<String> incomeValues = new ArrayList<String>();
 				Scanner scanner = new Scanner(str);
-				while(scanner.hasNextLine()) {
+				while (scanner.hasNextLine()) {
 					incomeValues.add(scanner.nextLine());
 				}
 				int count = 0;
 				for (String income : incomeValues) {
-					String result =  income.substring(income.lastIndexOf("(") + 1, income.indexOf("×"));
+					String result = income.substring(income.lastIndexOf("(") + 1, income.indexOf("×"));
 					System.out.println(result);
-					if(count == 0) {
+					if (count == 0) {
 						mappingObj.setMedianHouseholdIncomeAvg(Double.parseDouble(result));
-					}if(count == 1) {
+					}
+					if (count == 1) {
 						mappingObj.setPerCapitaIncomeAvg(Double.parseDouble(result));
 					}
 					count++;
-					if(count == 2) break;
+					if (count == 2)
+						break;
 				}
 				scanner.close();
-				
+
 			}
 			if (title.equals(Constants.HOUSING)) {
 				String str = ((WAPlainText) data).getText();
-				ArrayList<String> housingData = new ArrayList<String>() ;
+				ArrayList<String> housingData = new ArrayList<String>();
 				Scanner scanner = new Scanner(str);
-				while(scanner.hasNextLine()) {
+				while (scanner.hasNextLine()) {
 					housingData.add(scanner.nextLine());
 				}
 				int count = 0;
 				for (String housing : housingData) {
-					if(count == 1) {
+					if (count == 1) {
 						String result = housing.substring(housing.indexOf("|") + 1, housing.lastIndexOf(" "));
 						System.out.println(result);
 						mappingObj.setPeoplePerHousehold(Double.parseDouble(result));
 					}
 					count++;
-					if(count==2) break;
+					if (count == 2)
+						break;
 				}
 				scanner.close();
 			}
@@ -175,7 +181,6 @@ public class WolframDataImpl implements WolframData {
 		}
 		return "Successfull extraction!";
 	}
-	
 
 	private String saveData(WolframMapping mappingObj, Form formObjct) {
 		Double finalScore = calculateScore(mappingObj);
@@ -192,15 +197,45 @@ public class WolframDataImpl implements WolframData {
 		try {
 			repo.save(metricData);
 		} catch (MongoException e) {
-			return "Error saving data"+e.getCode();
+			return "Error saving data" + e.getCode();
 		}
 		return "Succesfully Saved The data";
-		
+
 	}
 
 	private Double calculateScore(WolframMapping mappingObj) {
-		return null;
+		Double peoplePerHouseholdStat = 1.0d;
+		Double medianIncomeStat = 1.0d;
+		Double perCapitaIncomeStat = 1.0d;
+		Double collegeStat = 1.0d;
+		Double highSchoolStat = 1.0d;
+		Double lessThanHighSchoolStat = 1.0d;
 		
+		if(null != mappingObj.getPeoplePerHousehold()) {
+			peoplePerHouseholdStat = 0.0d;
+			peoplePerHouseholdStat = mappingObj.getPeoplePerHousehold() * 5;
+		}if(null != mappingObj.getMedianHouseholdIncomeAvg()) {
+			medianIncomeStat = 0.0d;
+			medianIncomeStat = mappingObj.getMedianHouseholdIncomeAvg() * 5;
+		}if(null != mappingObj.getPerCapitaIncomeAvg()) {
+			perCapitaIncomeStat = 0.0d;
+			perCapitaIncomeStat = mappingObj.getPerCapitaIncomeAvg() * 5;
+		}if(null != mappingObj.getCollegeDegreeAvg()) {
+			collegeStat = 0.0d;
+			collegeStat = mappingObj.getCollegeDegreeAvg() * 5;
+		}if(null != mappingObj.getHighSchoolDiplomaAvg()) {
+			highSchoolStat = 0.0d;
+			highSchoolStat = mappingObj.getHighSchoolDiplomaAvg() * -5;
+		}if(null != mappingObj.getLessThanHighSchoolDiplomaAvg()) {
+			lessThanHighSchoolStat = 0.0d;
+			lessThanHighSchoolStat = mappingObj.getLessThanHighSchoolDiplomaAvg() * -5;
+		}
+		
+		Double finalTotalStat = peoplePerHouseholdStat + medianIncomeStat + perCapitaIncomeStat + collegeStat
+				+ highSchoolStat + lessThanHighSchoolStat;
+
+		return finalTotalStat;
+
 	}
 
 }
