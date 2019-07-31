@@ -1,7 +1,11 @@
 package com.prospect.model;
 
+import java.util.Date;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 @Document(collection = "metrics")
 public class Metrics {
@@ -16,6 +20,8 @@ public class Metrics {
 	private String enquiryMessage;
 	private String gender;
 	private String location;
+	@DateTimeFormat(iso = ISO.DATE_TIME)
+	private Date saveDate;
 
 	private Double score;
 
@@ -98,6 +104,15 @@ public class Metrics {
 	public void setLocation(String location) {
 		this.location = location;
 	}
+
+	public Date getSaveDate() {
+		return saveDate;
+	}
+
+	public void setSaveDate(Date saveDate) {
+		this.saveDate = saveDate;
+	}
+	
 	
 	
 

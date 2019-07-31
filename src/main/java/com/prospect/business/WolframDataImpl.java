@@ -177,7 +177,7 @@ public class WolframDataImpl implements WolframData {
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			return "Error Extracting data, try differen zip code";
+			return "Error Extracting data, try different zip code";
 		}
 		return "Successfull extraction!";
 	}
@@ -194,6 +194,7 @@ public class WolframDataImpl implements WolframData {
 		metricData.setEnquiryMessage(formObjct.getEnquiryMessage());
 		metricData.setZip(formObjct.getZip());
 		metricData.setLocation(mappingObj.getLocation());
+		metricData.setSaveDate(formObjct.getUserDate());
 		try {
 			repo.save(metricData);
 		} catch (MongoException e) {
